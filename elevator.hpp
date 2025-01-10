@@ -1,112 +1,148 @@
+/**
+ * @file elevator.hpp
+ * @brief Definition of the Elevator class for managing a single elevator.
+ * 
+ * The Elevator class provides functionality to operate a single elevator
+ * within the system, including moving between floors, managing doors, and 
+ * handling a buffer of requested floors.
+ */
+
 #ifndef ELEVATOR_HPP
 #define ELEVATOR_HPP
 
-
-#include<iostream>
-#include"elevatorsystem.hpp"
+#include <iostream>
+#include "elevatorsystem.hpp"
 #include <vector>
 
-using std::cout, std::cin, std::endl, std::vector;
-
+/**
+ * @namespace jk
+ * @brief Contains classes and functions for the elevator management system.
+ */
 namespace jk {
-	class Elevator {
-	private:
-		int m_id;
-		
-		int m_currFloor;
-		int m_nextFloor;
-		int m_isDoorOpen;
-		vector<int> m_buffer;
-	public:
-		Elevator(int id,int cf, int nf, int d, vector<int> b) :m_id(id), m_currFloor(cf),
-			m_nextFloor(nf), m_isDoorOpen(d), m_buffer(b) {}
 
-		Elevator():m_id(0),m_currFloor(0),
-			m_nextFloor(0),m_isDoorOpen(0),m_buffer() {}
+/**
+ * @class Elevator
+ * @brief Represents a single elevator in the system.
+ * 
+ * The Elevator class models an elevator with functionality to:
+ * - Move between floors.
+ * - Open and close doors.
+ * - Manage a buffer of floor requests.
+ */
+class Elevator {
+private:
+    int m_id; ///< Unique identifier for the elevator.
+    int m_currFloor; ///< The current floor of the elevator.
+    int m_nextFloor; ///< The next destination floor of the elevator.
+    int m_isDoorOpen; ///< Status of the elevator door (0 = closed, 1 = open).
+    std::vector<int> m_buffer; ///< Buffer containing requested floors.
 
-		void setId(int id, int e) { 
-			if(id <= e && id >= 0) { 
-				m_id = id;
-			}
-		}
+public:
+    /**
+     * @brief Parameterized constructor to initialize the elevator.
+     * @param id Unique identifier for the elevator.
+     * @param cf Current floor of the elevator.
+     * @param nf Next destination floor of the elevator.
+     * @param d Initial door status (0 = closed, 1 = open).
+     * @param b Initial buffer of requested floors.
+     */
+    Elevator(int id, int cf, int nf, int d, std::vector<int> b);
 
+    /**
+     * @brief Default constructor initializing with default values.
+     */
+    Elevator();
 
-		void setCurrFloor(int f,int e) {
-			if (f <= e-1 && f >= 0) {
-				m_currFloor = f;
-			}
-		}
-		void setNextFloor(int f, int numFloor) { 
-			if (f <= numFloor -1 && f >= 0) {
-				m_nextFloor = f;
-			}
-		}
-		void setDoor(int d) { (d<=1&&d>=-1)?m_isDoorOpen = d: m_isDoorOpen=0; }
+    /**
+     * @brief Sets the elevator ID.
+     * @param id The ID to set.
+     * @param e The maximum allowed ID.
+     */
+    void setId(int id, int e);
 
-		void setBuffer(vector<int> v) { m_buffer = v; }
+    /**
+     * @brief Sets the current floor of the elevator.
+     * @param f The floor to set.
+     * @param e The total number of floors.
+     */
+    void setCurrFloor(int f, int e);
 
-		int getCurrFloor() const { return m_currFloor; }
-		int getNextFloor() const { return m_nextFloor; }
-		int getDoor() const { return m_isDoorOpen; }
-		int getId() const { return m_id; }
-		vector<int> getBuffer() const{ return m_buffer; }
+    /**
+     * @brief Sets the next destination floor of the elevator.
+     * @param f The floor to set.
+     * @param numFloor Total number of floors.
+     */
+    void setNextFloor(int f, int numFloor);
 
-		void pickedFloor(int& choice,int numFloor) {
-			
-			m_buffer.push_back(choice);
-			loadFloorFromBuffer();
-			cout << "Picked floor: " << choice << endl;
-		}
-		
-		void loadFloorFromBuffer() {
-			if (m_buffer.size() > 0) {
-				m_nextFloor = m_buffer[0];
-			}
-		}
-		
-		//check if escalator have floor in buffer and return this floor position in buffer
-		int haveInBuffer(int floor) {
-			for (int i = 0;i < m_buffer.size();i++) {
-				if (m_buffer[i] == floor) {
-					return i;
-				}	
-			}
-			return -1;
-		}
+    /**
+     * @brief Sets the door status of the elevator.
+     * @param d Door status to set (0 = closed, 1 = open).
+     */
+    void setDoor(int d);
 
+    /**
+     * @brief Updates the buffer with a new list of floor requests.
+     * @param v Vector of requested floors.
+     */
+    void setBuffer(std::vector<int> v);
 
-		void step() {
-			int bufferPos = haveInBuffer(m_currFloor);
-			
-			//Destination reached = open door or close door clear buffer and load next destination
-			if (bufferPos>=0) {
-				//close door and clear all occurences in buffer
-				if (m_isDoorOpen) {
-					setDoor(0);
-					while (bufferPos >= 0) {
-						m_buffer.erase(m_buffer.begin() + bufferPos);
-						bufferPos = haveInBuffer(m_currFloor);
-					}
-					loadFloorFromBuffer();
-					return;
-				}//open door if escalator is on destination floor
-				else {
-					if (m_buffer.size() > 0) {
-						setDoor(1);
-					}
-				}
-			}
-			
-			//Moving escalator if needed and door is closed
-			if (m_nextFloor > m_currFloor&&m_isDoorOpen==0) {
-				m_currFloor++;
-			}
+    /**
+     * @brief Gets the current floor of the elevator.
+     * @return Current floor.
+     */
+    int getCurrFloor() const;
 
-			if (m_nextFloor < m_currFloor && m_isDoorOpen==0) {
-				m_currFloor--;
-			}
-		}
-	};
-}
+    /**
+     * @brief Gets the next destination floor of the elevator.
+     * @return Next floor.
+     */
+    int getNextFloor() const;
+
+    /**
+     * @brief Gets the door status of the elevator.
+     * @return Door status (0 = closed, 1 = open).
+     */
+    int getDoor() const;
+
+    /**
+     * @brief Gets the ID of the elevator.
+     * @return Elevator ID.
+     */
+    int getId() const;
+
+    /**
+     * @brief Gets the buffer of requested floors.
+     * @return Vector containing requested floors.
+     */
+    std::vector<int> getBuffer() const;
+
+    /**
+     * @brief Adds a floor to the buffer and processes it.
+     * @param choice The floor to add.
+     * @param numFloor Total number of floors.
+     */
+    void pickedFloor(int& choice, int numFloor);
+
+    /**
+     * @brief Loads the next floor from the buffer into the destination floor.
+     */
+    void loadFloorFromBuffer();
+
+    /**
+     * @brief Checks if a floor exists in the buffer.
+     * @param floor The floor to check.
+     * @return Position of the floor in the buffer or -1 if not found.
+     */
+    int haveInBuffer(int floor);
+
+    /**
+     * @brief Moves the elevator one step towards the next destination.
+     * 
+     * Handles door operations, buffer management, and movement between floors.
+     */
+    void step();
+};
+
+} 
 
 #endif
